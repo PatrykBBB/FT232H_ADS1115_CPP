@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "error.h"
@@ -6,9 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <string>
-
-using namespace std;
 
 namespace ADS1115
 {
@@ -126,15 +122,15 @@ inline bool is_valid_address(const uint8_t address)
   return (address & ~0b11) == 0b1001000;
 }
 
-Error is_valid_ads_address(UCHAR address)
+inline Error is_valid_ads_address(UCHAR address)
 {
     if (!is_valid_address(address))
     {
-        cout << "Address invalid, possible addresses include: " << endl;
-        cout << "\t ADR pin to GND: 0x" << std::hex << AddressPin::GND << endl;
-        cout << "\t ADR pin to VDD: 0x" << std::hex << AddressPin::VDD << endl;
-        cout << "\t ADR pin to SDA: 0x" << std::hex << AddressPin::SDA << endl;
-        cout << "\t ADR pin to SCL: 0x" << std::hex << AddressPin::SCL << endl;
+        printf("Address invalid, possible addresses include:\n");
+        printf("\t ADR pin to GND: 0x%X\n", AddressPin::GND);
+        printf("\t ADR pin to VDD: 0x%X\n", AddressPin::VDD);
+        printf("\t ADR pin to SDA: 0x%X\n", AddressPin::SDA);
+        printf("\t ADR pin to SCL: 0x%X\n", AddressPin::SCL);
 
         return Error::BAD_ADDRESS;
     }
@@ -311,7 +307,7 @@ public:
   {
       UCHAR cfgbuf[2];
       
-      cout << "Config: " << m_config << endl;
+      printf("Config: %u\n", m_config);
 
       cfgbuf[0] = static_cast<UCHAR>(m_config >> 8);
       cfgbuf[1] = static_cast<UCHAR>(m_config & 0xFF);
@@ -328,7 +324,7 @@ public:
 
       uint16_t config = m_config | ADS1115::Config::OS;
 
-      cout << "Config: " << config << endl;
+      printf("Config: %u\n", config);
 
       cfgbuf[0] = static_cast<UCHAR>(config >> 8);
       cfgbuf[1] = static_cast<UCHAR>(config & 0xFF);
@@ -348,7 +344,7 @@ public:
       if (status == FT_OK)
       {
           cfg = (cfgbuf[0] << 8) | cfgbuf[1];
-          cout << "Config: " << cfg << endl;
+          printf("Config: %u\n", cfg);
           return cfg;
       }
       return 0;
@@ -364,9 +360,9 @@ public:
       {
           uint16_t readRawU = (readbuf[0] << 8) | readbuf[1];
           int16_t readRaw = static_cast<int16_t>(readRawU);
-          cout << "RAW value: " << readRaw << endl;
+          printf("RAW value: %d\n", readRaw);
           double readVoltage = raw_to_voltage(readRaw);
-          cout << "Voltage: " << readVoltage << endl;
+          printf("Voltage: %.5f\n", readVoltage);
           return readVoltage;
       }
       return -1;

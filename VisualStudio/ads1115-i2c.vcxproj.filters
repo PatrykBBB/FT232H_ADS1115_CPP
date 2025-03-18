@@ -22,7 +22,7 @@
     <ClInclude Include="..\inc\libmpsse\libmpsse_spi.h">
       <Filter>Header Files\libmpsse</Filter>
     </ClInclude>
-    <ClInclude Include="..\inc\FT232H_ADS1115.h">
+    <ClInclude Include="..\inc\ft232h_ads1115.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\inc\libftd2xx\ftd2xx.h">
@@ -62,6 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\example.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ft232h_ads1115.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

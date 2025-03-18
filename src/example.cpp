@@ -11,7 +11,7 @@
 #include <dlfcn.h>	/*for dlopen() & dlsym()*/
 #endif
 
-#include "FT232H_ADS1115.h"
+#include "ft232h_ads1115.hpp"
 
 using namespace std;
 

@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <chrono>
+#include <thread>
+
 namespace ADS1115
 {
     #define APP_CHECK_STATUS(exp) {if (exp!=FT_OK){printf(" status(0x%x) != FT_OK\n", exp);}else{;}};
@@ -263,10 +266,154 @@ namespace ADS1115
             this->channel = channel;
         }
 
+        void i2c_get_device_info()
+        {
+            DWORD numDevs;
+
+            status = FT_ListDevices(&numDevs,NULL,FT_LIST_NUMBER_ONLY);
+            if (status == FT_OK) {
+                printf("FT_ListDevices OK, number of devices connected: %d\n", numDevs);
+            }
+            else 
+            {
+                printf("FT_ListDevices failed\n");
+                return;
+            }
+
+            // printf("FT_ListDevices - serial numbers\n");
+
+            // char Buffer[64]; // more than enough room!
+
+            // for (DWORD devIndex = 0; devIndex < numDevs; devIndex++)
+            // {
+            //     status = FT_ListDevices((PVOID)devIndex,Buffer,FT_LIST_BY_INDEX|FT_OPEN_BY_SERIAL_NUMBER);
+            //     if (status == FT_OK) 
+            //     {
+            //         printf("%.*s\n", 64, Buffer);
+            //     }
+            //     else 
+            //     {
+            //         printf("FT_ListDevices failed\n");
+            //     }
+            // }
+
+            FT_PROGRAM_DATA Data;
+            FT_DEVICE ftDevice;
+            int iport = 0;
+
+            printf("Opening port %d\n", iport);
+	
+            status = FT_Open(iport, &ftHandle);
+            if(status != FT_OK) {
+                /* 
+                    This can fail if the ftdi_sio driver is loaded
+                    use lsmod to check this and rmmod ftdi_sio to remove
+                    also rmmod usbserial
+                */
+                printf("FT_Open(%d) failed\n", iport);
+                return;
+            }
+            
+            printf("FT_Open succeeded.  Handle is %p\n", ftHandle);
+
+            status = FT_GetDeviceInfo(ftHandle,
+                                        &ftDevice,
+                                        NULL,
+                                        NULL,
+                                        NULL,
+                                        NULL); 
+            if (status != FT_OK) 
+            { 
+                printf("FT_GetDeviceType FAILED!\n");
+                goto exit;
+            }  
+
+            printf("FT_GetDeviceInfo succeeded.  Device is type %d.\n", 
+                (int)ftDevice);
+
+            /* MUST set Signature1 and 2 before calling FT_EE_Read */
+            Data.Signature1 = 0x00000000;
+            Data.Signature2 = 0xffffffff;
+            Data.Manufacturer = (char *)malloc(256); /* E.g "FTDI" */
+            Data.ManufacturerId = (char *)malloc(256); /* E.g. "FT" */
+            Data.Description = (char *)malloc(256); /* E.g. "USB HS Serial Converter" */
+            Data.SerialNumber = (char *)malloc(256); /* E.g. "FT000001" if fixed, or NULL */
+            if (Data.Manufacturer == NULL ||
+                Data.ManufacturerId == NULL ||
+                Data.Description == NULL ||
+                Data.SerialNumber == NULL)
+            {
+                printf("Failed to allocate memory.\n");
+                goto exit;
+            }
+
+            status = FT_EE_Read(ftHandle, &Data);
+            if(status != FT_OK) {
+                printf("FT_EE_Read failed\n");
+                goto exit;
+            }
+
+            printf("FT_EE_Read succeeded.\n\n");
+                
+            printf("Signature1 = %d\n", (int)Data.Signature1);			
+            printf("Signature2 = %d\n", (int)Data.Signature2);			
+            printf("Version = %d\n", (int)Data.Version);				
+                                        
+            printf("VendorId = 0x%04X\n", Data.VendorId);				
+            printf("ProductId = 0x%04X\n", Data.ProductId);
+            printf("Manufacturer = %s\n", Data.Manufacturer);			
+            printf("ManufacturerId = %s\n", Data.ManufacturerId);		
+            printf("Description = %s\n", Data.Description);			
+            printf("SerialNumber = %s\n", Data.SerialNumber);			
+            printf("MaxPower = %d\n", Data.MaxPower);				
+            printf("PnP = %d\n", Data.PnP) ;					
+            printf("SelfPowered = %d\n", Data.SelfPowered);			
+            printf("RemoteWakeup = %d\n", Data.RemoteWakeup);
+
+        exit:
+            free(Data.Manufacturer);
+            free(Data.ManufacturerId);
+            free(Data.Description);
+            free(Data.SerialNumber);
+            FT_Close(ftHandle);
+        }
+
         void i2c_get_channel_info()
         {
             FT_DEVICE_LIST_INFO_NODE devList;
+            FT_DEVICE_LIST_INFO_NODE* pDevList;
 
+            status = FT_CreateDeviceInfoList(&channels);
+            printf("		FT_CreateDeviceInfoList returned %d; channels=%d\n", status, channels);
+
+            if (( FT_OK == status ) && ( channels > 0 ))
+            {
+                size_t size = sizeof(FT_DEVICE_LIST_INFO_NODE);
+                pDevList = (FT_DEVICE_LIST_INFO_NODE *)malloc( size * channels );
+
+                status = FT_GetDeviceInfoList( pDevList, &channels );
+
+                if ( FT_OK == status )
+                {
+                    for (DWORD channel = 0; channel < channels; channel++)
+                    {
+                        printf("Information on channel number %d:\n", channel);
+                        /*print the dev info*/
+                        printf("        Flags=0x%x\n",pDevList[channel].Flags);
+                        printf("        Type=0x%x\n",pDevList[channel].Type);
+                        printf("        ID=0x%x\n",pDevList[channel].ID);
+                        printf("        LocId=0x%x\n",pDevList[channel].LocId);
+                        printf("        SerialNumber=%s\n",pDevList[channel].SerialNumber);
+                        printf("        Description=%s\n\n",pDevList[channel].Description);
+                    }
+                }
+            }
+
+            free( pDevList );
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+            printf("LIBMPSSE test ---------------\n\n");
             printf("\nTest case 1 - I2C_GetNumChannels\n");
             status = I2C_GetNumChannels(&channels);
             printf("		I2C_GetNumChannels returned %d; channels=%d\n", status, channels);
@@ -287,12 +434,22 @@ namespace ADS1115
             }
         }
 
-        void i2c_init_connection(I2C_ClockRate_t mode, UCHAR latencyTimer, DWORD options, DWORD channel)
+        void i2c_init(I2C_ClockRate_t mode, UCHAR latencyTimer, DWORD options, DWORD channel)
         {
             i2c_set_conf(mode, latencyTimer, options, channel);
+            printf("Configuration has been set\n");
 
             Init_libMPSSE();
+            printf("Initialized libMPSSE\n");
+        }
 
+        void i2c_clear()
+        {
+            Cleanup_libMPSSE();
+        }
+
+        void i2c_open_connection()
+        {
             status = I2C_OpenChannel(channel, &ftHandle);
             APP_CHECK_STATUS(status);
             printf("Channel %d open status=%d\n", channel, status);
@@ -307,9 +464,9 @@ namespace ADS1115
             status = I2C_CloseChannel(ftHandle);
             APP_CHECK_STATUS(status);
             printf("Channel %d close status=%d\n", channel, status);
-
-            Cleanup_libMPSSE();
         }
+
+
 
         // write config without converion request (continous mode)
         void i2c_write_adc_config()

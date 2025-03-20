@@ -27,9 +27,10 @@ namespace ADS1115
 		FT232H_ADS1115();
 		~FT232H_ADS1115();
 
-		void ads_set_conf();
-		void ads_get_conf();
-		void ads_read_mes();
+		void open_connection();
+		void set_conf();
+		void get_conf();
+		void read_mes();
 	};
 }
 

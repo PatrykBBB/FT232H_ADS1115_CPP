@@ -10,19 +10,23 @@ FT232H_ADS1115::FT232H_ADS1115() : address(ADS1115_DEVICE_ADDRESS), adc(address)
 		cout << "BAD_ADDRESS" << endl;
 	}
 
-	ads_set_conf();
-	adc.i2c_init_connection(I2C_CLOCK_STANDARD_MODE, 10, 0, 0);
-	adc.i2c_write_adc_config();
-
-	this_thread::sleep_for(chrono::milliseconds(100));
+	set_conf();
+	adc.i2c_init(I2C_CLOCK_STANDARD_MODE, 10, 0, 0);
 }
 
 FT232H_ADS1115::~FT232H_ADS1115()
 {
 	adc.i2c_close_connection();
+	adc.i2c_clear();
 }
 
-void FT232H_ADS1115::ads_set_conf()
+void FT232H_ADS1115::open_connection()
+{
+	adc.i2c_open_connection();
+	adc.i2c_write_adc_config();
+}
+
+void FT232H_ADS1115::set_conf()
 {
 	auto config_fsr = FullScaleRange::FSR_6_144V;
 	auto config_dr = DataRate::SPS_860;
@@ -40,7 +44,7 @@ void FT232H_ADS1115::ads_set_conf()
 	adc.set_conversion_mode(config_conv);
 }
 
-void FT232H_ADS1115::ads_get_conf()
+void FT232H_ADS1115::get_conf()
 {
 	cout << "ADC Configuration" << endl;
 	cout << "\tfsr             : " << adc.get_fsr() << endl;
@@ -49,7 +53,7 @@ void FT232H_ADS1115::ads_get_conf()
 	cout << "\tconversion mode : " << adc.get_conversion_mode() << endl;
 }
 
-void FT232H_ADS1115::ads_read_mes()
+void FT232H_ADS1115::read_mes()
 {
 	for (int i = 0; i < 10; i++)
 	{

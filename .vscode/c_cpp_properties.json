@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/inc/**",
+                "${workspaceFolder}/inc/ads1115/**",
+                "${workspaceFolder}/inc/ftdi/**",
+                "${workspaceFolder}/inc/libftd2xx/**",
+                "${workspaceFolder}/inc/libmpsse/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}

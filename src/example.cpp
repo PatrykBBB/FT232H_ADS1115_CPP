@@ -12,15 +12,13 @@ using namespace std;
 
 int main(void)
 {
-	ADS1115::FT232H_ADS1115* ads = new ADS1115::FT232H_ADS1115();
+	ADS1115::FT232H_ADS1115 ads;
 
-	ads->adc.i2c_get_device_info();
-	ads->adc.i2c_get_channel_info();
-	ads->adc.i2c_open_connection();
+	ads.adc.i2c_get_device_info();
+	ads.adc.i2c_get_channel_info();
+	ads.adc.i2c_open_connection();
 
-	ads->read_mes();
-
-	delete ads;
+	ads.read_mes();
 
 	return 0;
 }

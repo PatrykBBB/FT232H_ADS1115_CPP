@@ -13,8 +13,9 @@ using namespace std;
 int main(void)
 {
 	ADS1115::FT232H_ADS1115 ads;
-
+#ifndef _WIN32
 	ads.adc.i2c_get_device_info();
+#endif
 	ads.adc.i2c_get_channel_info();
 	ads.adc.i2c_open_connection();
 

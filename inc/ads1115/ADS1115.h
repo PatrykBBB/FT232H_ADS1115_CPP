@@ -266,6 +266,7 @@ namespace ADS1115
             this->channel = channel;
         }
 
+#ifndef _WIN32
         void i2c_get_device_info()
         {
             DWORD numDevs;
@@ -377,10 +378,10 @@ namespace ADS1115
             free(Data.SerialNumber);
             FT_Close(ftHandle);
         }
-
+#endif
         void i2c_get_channel_info()
         {
-            FT_DEVICE_LIST_INFO_NODE devList;
+#ifndef _WIN32
             FT_DEVICE_LIST_INFO_NODE* pDevList;
 
             status = FT_CreateDeviceInfoList(&channels);
@@ -412,6 +413,8 @@ namespace ADS1115
             free( pDevList );
 
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
+#endif
+            FT_DEVICE_LIST_INFO_NODE devList;
 
             printf("LIBMPSSE test ---------------\n\n");
             printf("\nTest case 1 - I2C_GetNumChannels\n");

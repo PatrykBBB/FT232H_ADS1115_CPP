@@ -528,9 +528,10 @@ namespace ADS1115
             {
                 uint16_t readRawU = (readbuf[0] << 8) | readbuf[1];
                 int16_t readRaw = static_cast<int16_t>(readRawU);
-                printf("RAW value: %d\n", readRaw);
+                // printf("RAW value: %d\n", readRaw);
                 double readVoltage = raw_to_voltage(readRaw);
-                printf("Voltage: %.5f\n", readVoltage);
+                // printf("Voltage: %.5f\n", readVoltage);
+                printf("%.5f\n", readVoltage);
                 return readVoltage;
             }
             return -1;

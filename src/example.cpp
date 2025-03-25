@@ -17,7 +17,7 @@ int main(void)
 	ads.adc.i2c_get_device_info();
 #endif
 	ads.adc.i2c_get_channel_info();
-	ads.adc.i2c_open_connection();
+	ads.open_connection();
 
 	ads.read_mes();
 

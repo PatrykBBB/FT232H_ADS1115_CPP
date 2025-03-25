@@ -11,7 +11,7 @@ FT232H_ADS1115::FT232H_ADS1115() : address(ADS1115_DEVICE_ADDRESS), adc(address)
 	}
 
 	set_conf();
-	adc.i2c_init(I2C_CLOCK_STANDARD_MODE, 10, 0, 0);
+	adc.i2c_init(I2C_CLOCK_FAST_MODE_PLUS, 10, 0, 0);
 }
 
 FT232H_ADS1115::~FT232H_ADS1115()
@@ -30,7 +30,7 @@ void FT232H_ADS1115::set_conf()
 {
 	auto config_fsr = FullScaleRange::FSR_6_144V;
 	auto config_dr = DataRate::SPS_860;
-	auto config_mux = Multiplex::AIN0;
+	auto config_mux = Multiplex::AIN0_AIN1;
 	auto config_conv = ConversionMode::Continuous;
 
 	cout << "Setting FSR to +-" << config_fsr << endl;
@@ -55,10 +55,10 @@ void FT232H_ADS1115::get_conf()
 
 void FT232H_ADS1115::read_mes()
 {
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 200*5; i++)
 	{
 		//read conv register in continous mode
 		adc.i2c_read_measurement_continous();
-		this_thread::sleep_for(chrono::milliseconds(2));
+		this_thread::sleep_for(chrono::milliseconds(8));
 	}
 }
